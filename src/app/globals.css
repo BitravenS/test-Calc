@@ -71,8 +71,4 @@
   body {
     @apply min-h-screen bg-gradient-to-br from-violet-950 to-purple-600;
   }
-  Button 
-  {
-    @apply rounded-4xl;
-  }
 }

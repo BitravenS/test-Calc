@@ -1,14 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Parser } from "expr-eval";
 
 const Calculator = () => {
   const [display, setDisplay] = useState("0");
   const [equation, setEquation] = useState("");
   const [shouldResetDisplay, setShouldResetDisplay] = useState(false);
+  const [closedParenthesis, setClosedParenthesis] = useState(false);
 
   const handleNumber = (number: string) => {
+    setClosedParenthesis(false);
+
     if (shouldResetDisplay) {
       setDisplay(number);
       setShouldResetDisplay(false);
@@ -18,22 +21,31 @@ const Calculator = () => {
   };
 
   const handleOperator = (operator: string) => {
+    let eq = equation;
+    if (!closedParenthesis) {
+      eq = eq + " " + display;
+    }
+    setClosedParenthesis(false);
+
     setShouldResetDisplay(true);
-    setEquation(equation + " " + display + " " + operator + " ");
+    setEquation(eq + " " + operator + " ");
   };
   const handleOpenParenthesis = (parenthesis: string) => {
     setShouldResetDisplay(true);
     setEquation(equation + " " + parenthesis);
   };
   const handleCloseParenthesis = (parenthesis: string) => {
-    setShouldResetDisplay(true);
+    setClosedParenthesis(true);
     setEquation(equation + " " + display + " " + parenthesis);
   };
   const handleEqual = () => {
     try {
       const parser = new Parser();
-
-      const result = parser.evaluate(equation + display);
+      let eq = equation;
+      if (!closedParenthesis) {
+        eq = eq + display;
+      }
+      const result = parser.evaluate(eq);
       setDisplay(String(result));
       setEquation("");
     } catch (error) {
@@ -46,6 +58,8 @@ const Calculator = () => {
   };
 
   const handleClear = () => {
+    setClosedParenthesis(false);
+
     setDisplay("0");
     setEquation("");
   };
@@ -121,7 +135,11 @@ const Calculator = () => {
         <Button size="lg" onClick={() => handleNumber(".")}>
           .
         </Button>
-        <Button size="lg" onClick={() => handleEqual()}>
+        <Button
+          size="lg"
+          className="bg-violet-600/50"
+          onClick={() => handleEqual()}
+        >
           =
         </Button>
         <Button size="lg" onClick={() => handleOperator("/")}>
